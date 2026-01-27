@@ -93,6 +93,44 @@ app.get("/products", async (req, res) => {
   }
 });
 
+// ============================
+// ✅ PUT — Replace entire product
+// ============================
+app.put("/products/:id", async (req, res) => {
+  try {
+    const { name, buyer, price, location } = req.body;
+
+    // Validate: all fields must be present
+    if (!name || !buyer || !price || !location) {
+      return res.status(400).json({
+        error: "PUT requires full object: name, buyer, price, location"
+      });
+    }
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        buyer,
+        price,
+        location
+      },
+      {
+        new: true,
+        runValidators: true,
+        overwrite: true   // 🔥 Important: replaces whole document
+      }
+    );
+
+    if (!product) return res.status(404).json({ message: "Not found" });
+
+    res.json(product);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
 
 
 // ============================
